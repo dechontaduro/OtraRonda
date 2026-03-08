@@ -1,0 +1,175 @@
+@import './base.css';
+
+/* src/assets/main.css */
+
+:root {
+  /* Paleta de colores */
+  --color-fondo: #f4f6f8;
+  --color-superficie: #ffffff;
+  --color-primario: #0b2b40;
+  /* Azul marino profundo */
+  --color-acento: #f28e2b;
+  /* Naranja cítrico */
+  --color-acento-hover: #d97d22;
+  --color-texto: #2c3e50;
+  --color-texto-secundario: #7f8c8d;
+  --color-borde: #e9ecef;
+
+  /* Radios y Sombras */
+  --radio-borde: 12px;
+  --sombra-tarjeta: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  /* Tipografía */
+  --fuente-principal: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Reset básico */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--fuente-principal);
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Contenedor Principal */
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Encabezados */
+h1 {
+  text-align: center;
+  color: var(--color-primario);
+  font-size: 2rem;
+  margin-bottom: 5px;
+}
+
+p {
+  text-align: center;
+  color: var(--color-texto-secundario);
+  margin-bottom: 30px;
+}
+
+/* Layout (Grid para Desktop, Columna para Mobile) */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 800px) {
+  .layout {
+    grid-template-columns: 350px 1fr;
+  }
+}
+
+/* Tarjetas y Contenedores Blancos */
+.sidebar,
+.content,
+.form-container,
+.resumen-container {
+  background: var(--color-superficie);
+  border-radius: var(--radio-borde);
+  padding: 24px;
+  box-shadow: var(--sombra-tarjeta);
+}
+
+/* Formularios - Optimizados para pantallas táctiles */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-container h3 {
+  font-size: 1.1rem;
+  color: var(--color-primario);
+  border-bottom: 2px solid var(--color-fondo);
+  padding-bottom: 8px;
+  margin-top: 10px;
+}
+
+.form-container label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-texto);
+}
+
+/* Inputs y Selects con altura mínima de 44px para accesibilidad móvil */
+input,
+select {
+  margin-top: 6px;
+  padding: 12px;
+  border: 1px solid var(--color-borde);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: var(--color-fondo);
+  transition: border-color 0.2s;
+  color: var(--color-texto);
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-primario);
+  background-color: var(--color-superficie);
+}
+
+/* Botón de Acción */
+button {
+  margin-top: 20px;
+  padding: 14px;
+  background-color: var(--color-acento);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:hover {
+  background-color: var(--color-acento-hover);
+}
+
+/* Mensajes e Instrucciones */
+.empty-state {
+  text-align: center;
+  color: var(--color-texto-secundario);
+  padding: 60px 20px;
+  font-size: 1.1rem;
+}
+
+.instruccion {
+  background-color: #e8f4fd;
+  color: #0c5460;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 20px;
+  border: 1px solid #b8daff;
+}
+
+/* Asegurar que el gráfico se adapte */
+.echarts-container {
+  width: 100%;
+  overflow-x: auto;
+  /* Permite scroll en móviles muy pequeños si es necesario */
+}
