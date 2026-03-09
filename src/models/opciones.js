@@ -6,10 +6,10 @@ export const nivelesBAC = [
 ];
 
 export const tiposBebida = [
-    { alcohol: 4, etiqueta: 'Cerveza Suave (4%)' },
-    { alcohol: 5, etiqueta: 'Cerveza Normal (5%)' },
-    { alcohol: 12, etiqueta: 'Vino (12%)' },
-    { alcohol: 40, etiqueta: 'Destilado (40%)' }
+    { alcohol: 4, etiqueta: 'Cerveza Suave (4%)', icon: '🍺' },
+    { alcohol: 5, etiqueta: 'Cerveza Normal (5%)', icon: '🍺' },
+    { alcohol: 12, etiqueta: 'Vino (12%)', icon: '🍷' },
+    { alcohol: 40, etiqueta: 'Destilado (40%)', icon: '🥛' }
 ];
 
 export const tamanosBebida = [

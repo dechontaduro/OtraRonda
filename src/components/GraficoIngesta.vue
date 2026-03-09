@@ -29,8 +29,6 @@ const renderizarGrafico = () => {
     .filter(d => d.tomarTrago)
     .map(d =>  
         [d.minuto, d.bac, d.numeroTrago]
-        //({ coord: [d.minuto, d.bac],
-        // value: `${d.numeroTrago}` })
     );
 
   const nuevasBebidasData = props.datosSimulacion
@@ -87,10 +85,14 @@ const renderizarGrafico = () => {
         },
         // Marcamos el momento de pedir una nueva bebida
         markPoint: {
-          symbol: 'pin',
-          symbolSize: 50,
+          //symbol: 'none',
+          symbolSize: 0,
           itemStyle: { color: '#ff9900' },
-          data: nuevasBebidasData
+          data: nuevasBebidasData,
+          label: {position: 'inside',
+                 fontSize: 20,
+                  formatter: props.parametros.tipoBebida.icon || '⭐'
+                }
         },
       },
       {
@@ -108,11 +110,12 @@ const renderizarGrafico = () => {
         yAxisIndex: 0,
         data: tragosData,
         itemStyle: { color: '#000000' },
-        symbolSize: 8,
+        symbol: 'diamond', 
+        symbolSize: 10,
         tooltip: {
           valueFormatter: (value,dataIndex ) => tragosData[dataIndex][2]
         }
-      }
+      },
     ]
   };
 

@@ -23,10 +23,10 @@
     </label>
 <hr />
     <label>Bebida (% Alcohol):
-      <select v-model.number="formParams.porcentajeAlcohol">
-        <option v-for="opc in tiposBebida" :key="opc.alcohol" :value="opc.alcohol">{{ opc.etiqueta }}</option>
+      <select v-model.number="formParams.tipoBebida">
+        <option v-for="opc in tiposBebida" :key="opc.etiqueta" :value="opc">{{ opc.etiqueta }}</option>
       </select>
-      <input type="number" v-model.number="formParams.porcentajeAlcohol" step="0.1" min="1" max="90" />
+      <input type="number" v-model.number="formParams.tipoBebida.alcohol" step="0.1" min="1" max="90" />
     </label>
     <label>Volumen Bebida (cc):
         <select v-model.number="formParams.volumenBebida">
@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { nivelesBAC, tiposBebida, tamanosBebida } from '../models/opciones.js';
 
 const emit = defineEmits(['calcular']);
@@ -64,7 +64,8 @@ const formParams = ref({
   pesoKg: 60,
   tiempoTotalMin: 120,
   minTiempoEntreTragos: 2,
-  porcentajeAlcohol: 4,
+  porcentajeAlcohol: tiposBebida[0].alcohol,
+  tipoBebida: tiposBebida[0],
   volumenBebida: 330,
   volumenTrago: 40,
   tempInicial: 3.0,
@@ -73,8 +74,11 @@ const formParams = ref({
 });
 
 const emitirCalculo = () => {
+    formParams.value.porcentajeAlcohol = formParams.value.tipoBebida.alcohol;
   emit('calcular', formParams.value);
 };
+
+
 </script>
 
 <style scoped>
