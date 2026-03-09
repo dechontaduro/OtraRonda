@@ -1,6 +1,25 @@
 <template>
   <div class="resumen-container">
     <div class="stats-grid">
+      <div class="stat-card info">
+        <h4>Tiempo a objetivo</h4>
+        <p class="valor">{{ metricasRitmo.carga }} <small>min</small></p>
+        <span class="detalle">Desde el primer trago</span>
+      </div>
+
+      <div class="stat-card info">
+        <h4>Ritmo Mantenimiento</h4>
+        <p class="valor">
+          <template v-if="metricasRitmo.mantenimiento > 0">
+            {{ metricasRitmo.mantenimiento }} <small>min</small>
+          </template>
+          <template v-else>
+            --
+          </template>
+        </p>
+        <span class="detalle">Tiempo entre tragos post-carga</span>
+      </div>
+
       <div class="stat-card">
         <h4>Total Bebidas</h4>
         <p class="valor">{{ totalBebidas }}</p>
@@ -25,24 +44,7 @@
         <span class="detalle">Desde el final de la sesión</span>
       </div>
 
-      <div class="stat-card info">
-        <h4>Duración Carga</h4>
-        <p class="valor">{{ metricasRitmo.carga }} <small>min</small></p>
-        <span class="detalle">Alcanzando el objetivo</span>
-      </div>
-
-      <div class="stat-card info">
-        <h4>Ritmo Mantenimiento</h4>
-        <p class="valor">
-          <template v-if="metricasRitmo.mantenimiento > 0">
-            {{ metricasRitmo.mantenimiento }} <small>min</small>
-          </template>
-          <template v-else>
-            --
-          </template>
-        </p>
-        <span class="detalle">Tiempo entre tragos post-carga</span>
-      </div>
+      
     </div>
   </div>
 </template>
