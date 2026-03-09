@@ -6,73 +6,130 @@
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import * as echarts from 'echarts';
 
+// El componente recibe el arreglo generado por el algoritmo
 const props = defineProps({
-  datosSimulacion: Array
+  datosSimulacion: {
+    type: Array,
+    required: true,
+    default: () => []
+  }
 });
-const emit = defineEmits(['tragoMovido']);
 
 const chartRef = ref(null);
 let chartInstance = null;
 
+// Función adaptadora: Convierte el arreglo de la simulación al formato ECharts
 const renderizarGrafico = () => {
   if (!chartInstance || !props.datosSimulacion.length) return;
 
+  // Extraer vectores de datos
   const minutos = props.datosSimulacion.map(d => d.minuto);
   const bacData = props.datosSimulacion.map(d => d.bac);
   const tempData = props.datosSimulacion.map(d => d.temperatura);
   
+  // Extraer puntos específicos para marcadores visuales
   const tragosData = props.datosSimulacion
     .filter(d => d.tomarTrago)
-    .map(d => [d.minuto, d.bac]);
+    .map(d => [d.minuto, d.bac]); // Formato [x, y] para scatter
+
+  const nuevasBebidasData = props.datosSimulacion
+    .filter(d => d.pedirNuevaBebida)
+    .map(d => ({
+      coord: [d.minuto, d.bac],
+      value: `Bebida ${d.bebidaActual}`
+    }));
 
   const option = {
+    title: { text: 'Proyección de Alcoholemia', left: 'center' },
     tooltip: { trigger: 'axis' },
+    legend: {
+      data: ['BAC (mg/100ml)', 'Temperatura (°C)', 'Trago'],
+      top: 30
+    },
     grid: { left: '5%', right: '5%', bottom: '10%', containLabel: true },
-    xAxis: { type: 'category', data: minutos, name: 'Tiempo (min)' },
+    xAxis: {
+      type: 'category',
+      data: minutos,
+      name: 'Tiempo (min)',
+      nameLocation: 'middle',
+      nameGap: 30
+    },
     yAxis: [
-      { type: 'value', name: 'BAC', max: 120, axisLine: { lineStyle: { color: '#d62728' } } },
-      { type: 'value', name: 'Temp', max: 20, position: 'right', axisLine: { lineStyle: { color: '#1f77b4' } } }
+      {
+        type: 'value',
+        name: 'BAC',
+        position: 'left',
+        max: 120, // Un poco por encima del límite común para dar margen visual
+        axisLine: { show: true, lineStyle: { color: '#d62728' } },
+        axisLabel: { formatter: '{value} mg' }
+      },
+      {
+        type: 'value',
+        name: 'Temperatura',
+        position: 'right',
+        max: 20,
+        axisLine: { show: true, lineStyle: { color: '#1f77b4' } },
+        axisLabel: { formatter: '{value} °C' }
+      }
     ],
     series: [
-      { type: 'line', data: bacData, smooth: true, itemStyle: { color: '#d62728' } },
-      { type: 'line', yAxisIndex: 1, data: tempData, smooth: true, itemStyle: { color: '#1f77b4' }, lineStyle: { type: 'dashed' } },
-      { type: 'scatter', data: tragosData, symbolSize: 10, itemStyle: { color: '#000' } }
-    ],
-    // Aquí definimos los puntos arrastrables
-    graphic: tragosData.map((dataItem, index) => {
-      return {
-        type: 'circle',
-        position: chartInstance.convertToPixel({ xAxisIndex: 0, yAxisIndex: 0 }, dataItem),
-        shape: { r: 15 }, // Área de agarre más grande que el punto visual
-        invisible: true, // Se mantiene invisible, solo sirve para interactuar
-        draggable: 'horizontal', // Restringir movimiento solo al eje X (tiempo)
-        z: 100,
-        ondragend: function () {
-          // Convertir los píxeles arrastrados de vuelta a minutos
-          const newPoint = chartInstance.convertFromPixel({ xAxisIndex: 0, yAxisIndex: 0 }, this.position);
-          let nuevoMinuto = Math.round(newPoint[0]);
-          
-          // Prevenir que se arrastre fuera de los límites de tiempo
-          if (nuevoMinuto < 0) nuevoMinuto = 0;
-          if (nuevoMinuto > props.datosSimulacion.length - 1) nuevoMinuto = props.datosSimulacion.length - 1;
-
-          emit('tragoMovido', { indexTrago: index, minutoOriginal: dataItem[0], nuevoMinuto });
+      {
+        name: 'BAC (mg/100ml)',
+        type: 'line',
+        yAxisIndex: 0,
+        data: bacData,
+        smooth: true,
+        itemStyle: { color: '#d62728' },
+        markLine: {
+          data: [{ yAxis: 100, name: 'Límite Objetivo' }], // Límite estático de ejemplo
+          lineStyle: { color: 'red', type: 'dashed' }
+        },
+        // Marcamos el momento de pedir una nueva bebida
+        markPoint: {
+          symbol: 'pin',
+          symbolSize: 50,
+          itemStyle: { color: '#ff9900' },
+          data: nuevasBebidasData
         }
-      };
-    })
+      },
+      {
+        name: 'Temperatura (°C)',
+        type: 'line',
+        yAxisIndex: 1,
+        data: tempData,
+        smooth: true,
+        itemStyle: { color: '#1f77b4' },
+        lineStyle: { type: 'dashed' }
+      },
+      {
+        name: 'Trago',
+        type: 'scatter',
+        yAxisIndex: 0,
+        data: tragosData,
+        itemStyle: { color: '#000000' },
+        symbolSize: 8
+      }
+    ]
   };
 
-  chartInstance.setOption(option, true);
+  chartInstance.setOption(option);
 };
 
+// Ciclo de vida del componente
 onMounted(() => {
   chartInstance = echarts.init(chartRef.value);
   renderizarGrafico();
-  // Al redimensionar la ventana, hay que recalcular las posiciones gráficas
-  window.addEventListener('resize', () => chartInstance.resize());
 });
 
-watch(() => props.datosSimulacion, renderizarGrafico, { deep: true });
+// Reactividad: Si cambian los parámetros y se genera un nuevo arreglo, se actualiza el gráfico
+watch(() => props.datosSimulacion, () => {
+  renderizarGrafico();
+}, { deep: true });
 
-onBeforeUnmount(() => chartInstance?.dispose());
+// Limpieza de memoria
+onBeforeUnmount(() => {
+  if (chartInstance) {
+    chartInstance.dispose();
+  }
+});
 </script>
