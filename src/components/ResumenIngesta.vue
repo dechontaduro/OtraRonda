@@ -22,8 +22,8 @@
 
       <div class="stat-card">
         <h4>Total Bebidas</h4>
-        <p class="valor">{{ totalBebidas }}</p>
-        <span class="detalle">Unidades destapadas</span>
+        <p class="valor">{{ totalTragos }}/{{ totalBebidas }}</p>
+        <span class="detalle">Tragos/Unidades destapadas</span>
       </div>
       
       <div class="stat-card">
@@ -57,10 +57,16 @@ const props = defineProps({
   parametros: { type: Object, required: true }
 });
 
+const totalTragos = computed(() => {
+  if (!props.datosSimulacion.length) return 0;
+  const tragos = props.datosSimulacion.filter(d => d.tomarTrago);
+  return tragos.length;
+});
+
 const totalBebidas = computed(() => {
   if (!props.datosSimulacion.length) return 0;
   const tragos = props.datosSimulacion.filter(d => d.tomarTrago);
-  return tragos.length ? tragos[tragos.length - 1].bebidaActual : 0;
+  return tragos.length ? tragos[tragos.length - 1].numeroBebida : 0;
 });
 
 const volumenTotal = computed(() => {

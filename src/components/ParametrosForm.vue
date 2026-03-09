@@ -12,24 +12,27 @@
     <label>Objetivo BAC (mg/100ml):
       <select v-model.number="formParams.targetBAC">
         <option v-for="opc in nivelesBAC" :key="opc.valor" :value="opc.valor">{{ opc.etiqueta }}</option>
-      </select>
+    </select>
+    <input type="number" v-model.number="formParams.targetBAC" min="10" max="200" />
     </label>
     <label>Tiempo de Simulación (minutos):
       <input type="number" v-model.number="formParams.tiempoTotalMin" min="30" max="480" />
     </label>
     <label>Temp. Ambiente (°C):
-      <input type="number" v-model.number="formParams.tempFinal" step="0.1" />
+      <input type="number" v-model.number="formParams.tempFinal" step="0.1" min="5" max="50" />
     </label>
 <hr />
     <label>Bebida (% Alcohol):
       <select v-model.number="formParams.porcentajeAlcohol">
         <option v-for="opc in tiposBebida" :key="opc.alcohol" :value="opc.alcohol">{{ opc.etiqueta }}</option>
       </select>
+      <input type="number" v-model.number="formParams.porcentajeAlcohol" step="0.1" min="1" max="90" />
     </label>
     <label>Volumen Bebida (cc):
         <select v-model.number="formParams.volumenBebida">
             <option v-for="opc in tamanosBebida" :key="opc.volumen" :value="opc.volumen">{{ opc.etiqueta }}</option>
         </select>
+        <input type="number" v-model.number="formParams.volumenBebida" step="0.1" min="10" max="2000" />
     </label>
     <label>Volumen por Trago (cc):
         <input type="number" v-model.number="formParams.volumenTrago" min="10" max="100" />

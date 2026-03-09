@@ -13,6 +13,7 @@ export function calcularPlanIngesta(params, tragosFijos = []) {
     let tempActual = tempInicial;
     let volumenRestante = volumenBebida;
     let numeroBebida = 1;
+    let numeroTrago = 0;
     let minutoUltimoTrago = -minTiempoEntreTragos;
 
     const serieDatos = [];
@@ -59,6 +60,7 @@ export function calcularPlanIngesta(params, tragosFijos = []) {
             (permitirGreedy && puedeTomarPorTiempo &&
                 (bacFuturoAcumulado + bacTragoReal) <= targetBAC)) {
             tomarTrago = true;
+            numeroTrago++;
             volumenRestante -= tragoReal;
             minutoUltimoTrago = minuto;
 
@@ -76,7 +78,8 @@ export function calcularPlanIngesta(params, tragosFijos = []) {
             temperatura: Number(tempActual.toFixed(2)),
             tomarTrago: (minuto === 0) ? true : tomarTrago,
             pedirNuevaBebida: (minuto === 0) ? true : pedirNuevaBebida,
-            bebidaActual: numeroBebida,
+            numeroBebida,
+            numeroTrago,
             volumenRestante: Number(volumenRestante.toFixed(2))
         });
     }

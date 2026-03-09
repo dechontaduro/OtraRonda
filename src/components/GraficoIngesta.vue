@@ -27,13 +27,17 @@ const renderizarGrafico = () => {
   // Extraer puntos específicos para marcadores visuales
   const tragosData = props.datosSimulacion
     .filter(d => d.tomarTrago)
-    .map(d => [d.minuto, d.bac]); // Formato [x, y] para scatter
+    .map(d =>  
+        [d.minuto, d.bac, d.numeroTrago]
+        //({ coord: [d.minuto, d.bac],
+        // value: `${d.numeroTrago}` })
+    );
 
   const nuevasBebidasData = props.datosSimulacion
     .filter(d => d.pedirNuevaBebida)
     .map(d => ({
       coord: [d.minuto, d.bac],
-      value: `Bebida ${d.bebidaActual}`
+      value: `Bebida ${d.numeroBebida}`
     }));
 
   const option = {
@@ -41,7 +45,7 @@ const renderizarGrafico = () => {
     tooltip: { trigger: 'axis' },
     legend: {
       data: ['BAC (mg/100ml)', 'Temperatura (°C)', 'Trago'],
-      top: 30
+      top: 40
     },
     grid: { left: '5%', right: '5%', bottom: '10%', containLabel: true },
     xAxis: {
@@ -87,7 +91,7 @@ const renderizarGrafico = () => {
           symbolSize: 50,
           itemStyle: { color: '#ff9900' },
           data: nuevasBebidasData
-        }
+        },
       },
       {
         name: 'Temperatura (°C)',
@@ -104,7 +108,10 @@ const renderizarGrafico = () => {
         yAxisIndex: 0,
         data: tragosData,
         itemStyle: { color: '#000000' },
-        symbolSize: 8
+        symbolSize: 8,
+        tooltip: {
+          valueFormatter: (value,dataIndex ) => tragosData[dataIndex][2]
+        }
       }
     ]
   };
