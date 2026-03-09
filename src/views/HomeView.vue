@@ -1,21 +1,22 @@
 <template>
     <div class="layout">
       <aside class="sidebar">
+        <ParametrosForm @calcular="reiniciarSimulacion" />
       </aside>
       <main class="content">
-        <ParametrosForm @calcular="reiniciarSimulacion" />
         <template v-if="datosSimulacion.length > 0">
-          <p class="instruccion">💡 Puedes arrastrar horizontalmente los puntos negros (tragos) para reprogramarlos.</p>
           
           <ResumenIngesta 
-            :datosSimulacion="datosSimulacion" 
-            :parametros="parametrosActuales" 
+          :datosSimulacion="datosSimulacion" 
+          :parametros="parametrosActuales" 
           />
-
+          
           <GraficoIngesta 
-            :datosSimulacion="datosSimulacion" 
-            @tragoMovido="manejarTragoMovido"
+          :datosSimulacion="datosSimulacion" 
+          :parametros="parametrosActuales"
+          @tragoMovido="manejarTragoMovido"
           />
+          <p class="instruccion">💡 Puedes arrastrar horizontalmente los puntos negros (tragos) para reprogramarlos.</p>
         </template>
 
         <div v-else class="empty-state">

@@ -8,11 +8,8 @@ import * as echarts from 'echarts';
 
 // El componente recibe el arreglo generado por el algoritmo
 const props = defineProps({
-  datosSimulacion: {
-    type: Array,
-    required: true,
-    default: () => []
-  }
+  datosSimulacion: { type: Array, required: true, default: () => [] },
+  parametros: { type: Object, required: true }
 });
 
 const chartRef = ref(null);
@@ -67,7 +64,7 @@ const renderizarGrafico = () => {
         type: 'value',
         name: 'Temperatura',
         position: 'right',
-        max: 20,
+        max: props.parametros.tempFinal,
         axisLine: { show: true, lineStyle: { color: '#1f77b4' } },
         axisLabel: { formatter: '{value} °C' }
       }
@@ -81,7 +78,7 @@ const renderizarGrafico = () => {
         smooth: true,
         itemStyle: { color: '#d62728' },
         markLine: {
-          data: [{ yAxis: 100, name: 'Límite Objetivo' }], // Límite estático de ejemplo
+          data: [{ yAxis: props.parametros.targetBAC, name: 'Límite Objetivo' }], // Límite estático de ejemplo
           lineStyle: { color: 'red', type: 'dashed' }
         },
         // Marcamos el momento de pedir una nueva bebida

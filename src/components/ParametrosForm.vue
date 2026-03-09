@@ -26,17 +26,20 @@
       </select>
     </label>
     <label>Tamaño de la Bebida (cc):
-      <select v-model.number="formParams.volumenBebida">
-        <option v-for="opc in tamanosBebida" :key="opc.volumen" :value="opc.volumen">{{ opc.etiqueta }}</option>
-      </select>
+        <select v-model.number="formParams.volumenBebida">
+            <option v-for="opc in tamanosBebida" :key="opc.volumen" :value="opc.volumen">{{ opc.etiqueta }}</option>
+        </select>
     </label>
     <label>Volumen por Trago (cc):
-      <input type="number" v-model.number="formParams.volumenTrago" min="10" max="100" />
+        <input type="number" v-model.number="formParams.volumenTrago" min="10" max="100" />
+    </label>
+    <label>Tiempo míninimo entre tragos (minutos):
+        <input type="number" v-model.number="formParams.minTiempoEntreTragos" min="1" max="60" />
     </label>
     <label>Temp. Inicial (°C):
       <input type="number" v-model.number="formParams.tempInicial" step="0.1" />
     </label>
-    <label>Temp. Final Máx (°C):
+    <label>Temp. Ambiente (°C):
       <input type="number" v-model.number="formParams.tempFinal" step="0.1" />
     </label>
     <label>Calentamiento (°C/min):
@@ -59,11 +62,12 @@ const formParams = ref({
   sexo: 'M',
   pesoKg: 60,
   tiempoTotalMin: 120,
+  minTiempoEntreTragos: 2,
   porcentajeAlcohol: 4,
   volumenBebida: 330,
   volumenTrago: 40,
-  tempInicial: 4.0,
-  tempFinal: 15.0,
+  tempInicial: 3.0,
+  tempFinal: 20.0,
   deltaTemp: 0.68
 });
 

@@ -1,8 +1,8 @@
 export function calcularPlanIngesta(params, tragosFijos = []) {
     const {
         targetBAC, sexo, pesoKg, porcentajeAlcohol, volumenBebida,
-        tempInicial, tempFinal, deltaTemp, volumenTrago = 40,
-        tiempoTotalMin, minTiempoEntreTragos = 2, tiempoAbsorcionMin = 20
+        tempInicial, tempFinal, deltaTemp, volumenTrago, minTiempoEntreTragos,
+        tiempoTotalMin, tiempoAbsorcionMin = 20
     } = params;
 
     const densidadAlcohol = 0.789;

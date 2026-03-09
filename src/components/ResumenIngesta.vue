@@ -1,6 +1,5 @@
 <template>
   <div class="resumen-container">
-    <h3>📊 Resumen de la Sesión</h3>
     <div class="stats-grid">
       <div class="stat-card">
         <h4>Total Bebidas</h4>
