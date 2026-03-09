@@ -56,7 +56,7 @@ const renderizarGrafico = () => {
         type: 'value',
         name: 'BAC',
         position: 'left',
-        max: 120, // Un poco por encima del límite común para dar margen visual
+        max: props.parametros.targetBAC * 1.2,
         axisLine: { show: true, lineStyle: { color: '#d62728' } },
         axisLabel: { formatter: '{value} mg' }
       },

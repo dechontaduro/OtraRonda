@@ -30,7 +30,9 @@ export function calcularPlanIngesta(params, tragosFijos = []) {
         bacActual += bacPendienteDeAbsorcion[minuto];
 
         // 2. Calentamiento y recambio
-        if (volumenRestante > 0 && minuto > 0) tempActual = Math.min(tempFinal, tempActual + deltaTemp);
+        if (volumenRestante > 0 && minuto > 0)
+            tempActual = Math.min(tempFinal, tempActual + deltaTemp);
+
         if (volumenRestante <= 0) {
             pedirNuevaBebida = true;
             volumenRestante = volumenBebida;
@@ -47,12 +49,15 @@ export function calcularPlanIngesta(params, tragosFijos = []) {
         let bacTragoReal = (gramosTrago / (pesoKg * factorWidmark)) * 100;
 
         let bacFuturoAcumulado = bacActual;
-        for (let i = minuto + 1; i < bacPendienteDeAbsorcion.length; i++) bacFuturoAcumulado += bacPendienteDeAbsorcion[i];
+        for (let i = minuto + 1; i < bacPendienteDeAbsorcion.length; i++)
+            bacFuturoAcumulado += bacPendienteDeAbsorcion[i];
 
         // Permitir que el algoritmo genere tragos SOLO si ya pasamos la zona de tragos manipulados por el usuario
         const permitirGreedy = minuto > ultimoTragoFijo;
 
-        if (esTragoForzado || (permitirGreedy && puedeTomarPorTiempo && (bacFuturoAcumulado + bacTragoReal) <= targetBAC)) {
+        if (esTragoForzado ||
+            (permitirGreedy && puedeTomarPorTiempo &&
+                (bacFuturoAcumulado + bacTragoReal) <= targetBAC)) {
             tomarTrago = true;
             volumenRestante -= tragoReal;
             minutoUltimoTrago = minuto;
@@ -66,8 +71,13 @@ export function calcularPlanIngesta(params, tragosFijos = []) {
         }
 
         serieDatos.push({
-            minuto, bac: Number(bacActual.toFixed(3)), temperatura: Number(tempActual.toFixed(2)),
-            tomarTrago, pedirNuevaBebida, bebidaActual: numeroBebida, volumenRestante: Number(volumenRestante.toFixed(2))
+            minuto,
+            bac: Number(bacActual.toFixed(3)),
+            temperatura: Number(tempActual.toFixed(2)),
+            tomarTrago: (minuto === 0) ? true : tomarTrago,
+            pedirNuevaBebida: (minuto === 0) ? true : pedirNuevaBebida,
+            bebidaActual: numeroBebida,
+            volumenRestante: Number(volumenRestante.toFixed(2))
         });
     }
     return serieDatos;
