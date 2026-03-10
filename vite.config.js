@@ -10,7 +10,7 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
-  base: '/OtraRondaApp/',
+  base: '/otraronda/',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
