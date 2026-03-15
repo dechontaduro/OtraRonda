@@ -16,7 +16,8 @@
           :parametros="parametrosActuales"
           @tragoMovido="manejarTragoMovido"
           />
-          <p class="instruccion">💡 Puedes arrastrar horizontalmente los puntos negros (tragos) para reprogramarlos.</p>
+          <p class="instruccion">💡 Puedes arrastrar horizontalmente los puntos negros (tragos) para reprogramarlos.
+          Ya casi</p>
         </template>
 
         <div v-else class="empty-state">
