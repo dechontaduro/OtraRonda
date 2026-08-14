@@ -12,7 +12,7 @@ const props = defineProps({
   parametros: { type: Object, required: true }
 });
 
-const emit = defineEmits(['tragoMovido']);
+const emit = defineEmits(['toggleTrago']);
 
 const chartRef = ref(null);
 let chartInstance = null;
@@ -121,42 +121,40 @@ const renderizarGrafico = () => {
     ]
   };
 
-  chartInstance.setOption(option);
-
-  // Añadir elementos gráficos invisibles sobre los puntos para hacerlos arrastrables
-  const graphicElements = tragosData.map((dataItem, index) => {
-    return {
-      type: 'circle',
-      position: chartInstance.convertToPixel('grid', [dataItem[0], dataItem[1]]),
-      shape: { r: 15 },
-      invisible: true,
-      draggable: true,
-      z: 100,
-      ondragend: function () {
-        const newPos = chartInstance.convertFromPixel('grid', this.position);
-        let nuevoMinuto = Math.round(newPos[0]);
-        if (nuevoMinuto < 0) nuevoMinuto = 0;
-        
-        emit('tragoMovido', { indexTrago: index, nuevoMinuto });
-      }
-    };
-  });
-
-  chartInstance.setOption({
-    graphic: graphicElements
-  });
+  chartInstance.setOption(option, true);
 };
 
 const handleResize = () => {
   if (chartInstance) {
     chartInstance.resize();
-    renderizarGrafico(); // Re-calcular posiciones de los elementos gráficos
   }
 };
 
 // Ciclo de vida del componente
 onMounted(() => {
   chartInstance = echarts.init(chartRef.value);
+  
+  // Agregar listener para doble clic en el lienzo (ZRender)
+  chartInstance.getZr().on('dblclick', function (params) {
+    const pointInPixel = [params.offsetX, params.offsetY];
+    if (chartInstance.containPixel('grid', pointInPixel)) {
+      const pointInGrid = chartInstance.convertFromPixel('grid', pointInPixel);
+      const minutoClicked = Math.round(pointInGrid[0]);
+      
+      if (minutoClicked >= 0 && props.datosSimulacion.length > 0) {
+        // Encontrar si hay un trago cercano (margen de 2-3 minutos para facilitar el clic)
+        const tragosExistentes = props.datosSimulacion.filter(d => d.tomarTrago).map(d => d.minuto);
+        const tragoCercano = tragosExistentes.find(m => Math.abs(m - minutoClicked) <= 2);
+        
+        if (tragoCercano !== undefined) {
+          emit('toggleTrago', tragoCercano);
+        } else {
+          emit('toggleTrago', minutoClicked);
+        }
+      }
+    }
+  });
+
   renderizarGrafico();
   window.addEventListener('resize', handleResize);
 });

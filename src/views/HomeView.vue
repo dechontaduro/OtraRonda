@@ -14,10 +14,9 @@
           <GraficoIngesta 
           :datosSimulacion="datosSimulacion" 
           :parametros="parametrosActuales"
-          @tragoMovido="manejarTragoMovido"
+          @toggleTrago="manejarToggleTrago"
           />
-          <p class="instruccion">💡 Puedes arrastrar horizontalmente los puntos negros (tragos) para reprogramarlos.
-          Ya casi</p>
+          <p class="instruccion">💡 Haz doble clic en el gráfico para añadir un trago, o doble clic sobre uno existente para quitarlo.</p>
         </template>
 
         <div v-else class="empty-state">
@@ -52,14 +51,19 @@ const reiniciarSimulacion = (params) => {
                         .map(d => d.minuto);
 };
 
-// Se llama cuando ECharts emite el evento ondragend
-const manejarTragoMovido = ({ indexTrago, nuevoMinuto }) => {
-  // Actualizamos el minuto en nuestro arreglo de tragos fijos
-  const nuevosTragos = [...tragosFijos.value];
-  nuevosTragos[indexTrago] = nuevoMinuto;
+// Se llama cuando ECharts emite un doble clic para agregar/quitar tragos
+const manejarToggleTrago = (minuto) => {
+  let nuevosTragos = [...tragosFijos.value];
+  const index = nuevosTragos.indexOf(minuto);
   
-  // Ordenar para evitar inconsistencias si arrastró un trago antes que otro
-  nuevosTragos.sort((a, b) => a - b);
+  if (index > -1) {
+    // Si el trago ya existe, lo quitamos
+    nuevosTragos.splice(index, 1);
+  } else {
+    // Si no existe, lo agregamos y ordenamos
+    nuevosTragos.push(minuto);
+    nuevosTragos.sort((a, b) => a - b);
+  }
   
   // Actualizar estado y recalcular toda la curva respetando esta nueva configuración
   tragosFijos.value = nuevosTragos;
