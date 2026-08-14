@@ -12,6 +12,8 @@ const props = defineProps({
   parametros: { type: Object, required: true }
 });
 
+const emit = defineEmits(['tragoMovido']);
+
 const chartRef = ref(null);
 let chartInstance = null;
 
@@ -120,12 +122,43 @@ const renderizarGrafico = () => {
   };
 
   chartInstance.setOption(option);
+
+  // Añadir elementos gráficos invisibles sobre los puntos para hacerlos arrastrables
+  const graphicElements = tragosData.map((dataItem, index) => {
+    return {
+      type: 'circle',
+      position: chartInstance.convertToPixel('grid', [dataItem[0], dataItem[1]]),
+      shape: { r: 15 },
+      invisible: true,
+      draggable: true,
+      z: 100,
+      ondragend: function () {
+        const newPos = chartInstance.convertFromPixel('grid', this.position);
+        let nuevoMinuto = Math.round(newPos[0]);
+        if (nuevoMinuto < 0) nuevoMinuto = 0;
+        
+        emit('tragoMovido', { indexTrago: index, nuevoMinuto });
+      }
+    };
+  });
+
+  chartInstance.setOption({
+    graphic: graphicElements
+  });
+};
+
+const handleResize = () => {
+  if (chartInstance) {
+    chartInstance.resize();
+    renderizarGrafico(); // Re-calcular posiciones de los elementos gráficos
+  }
 };
 
 // Ciclo de vida del componente
 onMounted(() => {
   chartInstance = echarts.init(chartRef.value);
   renderizarGrafico();
+  window.addEventListener('resize', handleResize);
 });
 
 // Reactividad: Si cambian los parámetros y se genera un nuevo arreglo, se actualiza el gráfico
@@ -135,6 +168,7 @@ watch(() => props.datosSimulacion, () => {
 
 // Limpieza de memoria
 onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize);
   if (chartInstance) {
     chartInstance.dispose();
   }
