@@ -59,20 +59,17 @@ const props = defineProps({
 
 const totalTragos = computed(() => {
   if (!props.datosSimulacion.length) return 0;
-  const tragos = props.datosSimulacion.filter(d => d.tomarTrago);
-  return tragos.length;
+  return props.datosSimulacion[props.datosSimulacion.length - 1].numeroTrago;
 });
 
 const totalBebidas = computed(() => {
   if (!props.datosSimulacion.length) return 0;
-  const tragos = props.datosSimulacion.filter(d => d.tomarTrago);
-  return tragos.length ? tragos[tragos.length - 1].numeroBebida : 0;
+  return props.datosSimulacion[props.datosSimulacion.length - 1].numeroBebida;
 });
 
 const volumenTotal = computed(() => {
   if (!props.datosSimulacion.length) return 0;
-  const tragos = props.datosSimulacion.filter(d => d.tomarTrago);
-  return tragos.length * props.parametros.volumenTrago;
+  return totalTragos.value * props.parametros.volumenTrago;
 });
 
 const maxBAC = computed(() => {
@@ -82,11 +79,10 @@ const maxBAC = computed(() => {
 
 const horasSobriedad = computed(() => {
   if (!props.datosSimulacion.length) return 0;
-  const tragos = props.datosSimulacion.filter(d => d.tomarTrago);
   const factorWidmark = props.parametros.sexo === 'M' ? 0.68 : 0.55;
   const bacPorTrago = ((props.parametros.volumenTrago * (props.parametros.porcentajeAlcohol / 100) * 0.789) / (props.parametros.pesoKg * factorWidmark)) * 100;
   
-  const bacTotalIngresado = tragos.length * bacPorTrago;
+  const bacTotalIngresado = totalTragos.value * bacPorTrago;
   const bacMetabolizado = props.parametros.tiempoTotalMin * (15 / 60); 
   const bacRestante = Math.max(0, bacTotalIngresado - bacMetabolizado);
   

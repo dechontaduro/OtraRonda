@@ -1,4 +1,4 @@
-export function calcularPlanIngesta(params, tragosFijos = []) {
+export function calcularPlanIngesta(params, tragosFijos = [], soloManual = false) {
     const {
         targetBAC, sexo, pesoKg, porcentajeAlcohol, volumenBebida,
         tempInicial, tempFinal, deltaTemp, volumenTrago, minTiempoEntreTragos,
@@ -42,32 +42,50 @@ export function calcularPlanIngesta(params, tragosFijos = []) {
         }
 
         // 3. Lógica de decisión de trago
-        const esTragoForzado = tragosFijos.includes(minuto);
+        const cantidadTragosForzados = tragosFijos.filter(m => m === minuto).length;
+        const esTragoForzado = cantidadTragosForzados > 0;
         const puedeTomarPorTiempo = (minuto - minutoUltimoTrago) >= minTiempoEntreTragos;
-
-        let tragoReal = Math.min(volumenTrago, volumenRestante);
-        let gramosTrago = tragoReal * (porcentajeAlcohol / 100) * densidadAlcohol;
-        let bacTragoReal = (gramosTrago / (pesoKg * factorWidmark)) * 100;
 
         let bacFuturoAcumulado = bacActual;
         for (let i = minuto + 1; i < bacPendienteDeAbsorcion.length; i++)
             bacFuturoAcumulado += bacPendienteDeAbsorcion[i];
 
-        // Permitir que el algoritmo genere tragos SOLO si ya pasamos la zona de tragos manipulados por el usuario
-        const permitirGreedy = minuto > ultimoTragoFijo;
+        // Permitir que el algoritmo genere tragos SOLO si no estamos en modo manual y ya pasamos la zona de tragos manipulados
+        const permitirGreedy = !soloManual && (minuto > ultimoTragoFijo);
+
+        // Simulamos el "próximo" trago para la lógica predictiva
+        let tragoRealPredictivo = Math.min(volumenTrago, volumenRestante);
+        let bacTragoPredictivo = (tragoRealPredictivo * (porcentajeAlcohol / 100) * densidadAlcohol / (pesoKg * factorWidmark)) * 100;
 
         if (esTragoForzado ||
             (permitirGreedy && puedeTomarPorTiempo &&
-                (bacFuturoAcumulado + bacTragoReal) <= targetBAC)) {
+                (bacFuturoAcumulado + bacTragoPredictivo) <= targetBAC)) {
+            
+            const tragosEnEsteMinuto = esTragoForzado ? cantidadTragosForzados : 1;
             tomarTrago = true;
-            numeroTrago++;
-            volumenRestante -= tragoReal;
-            minutoUltimoTrago = minuto;
 
-            const bacPorMinutoAbsorcion = bacTragoReal / tiempoAbsorcionMin;
-            for (let i = 1; i <= tiempoAbsorcionMin; i++) {
-                if (minuto + i < bacPendienteDeAbsorcion.length) {
-                    bacPendienteDeAbsorcion[minuto + i] += bacPorMinutoAbsorcion;
+            for (let t = 0; t < tragosEnEsteMinuto; t++) {
+                numeroTrago++;
+                let tragoReal = Math.min(volumenTrago, volumenRestante);
+                volumenRestante -= tragoReal;
+                minutoUltimoTrago = minuto;
+
+                let gramosTrago = tragoReal * (porcentajeAlcohol / 100) * densidadAlcohol;
+                let bacTragoReal = (gramosTrago / (pesoKg * factorWidmark)) * 100;
+
+                const bacPorMinutoAbsorcion = bacTragoReal / tiempoAbsorcionMin;
+                for (let i = 1; i <= tiempoAbsorcionMin; i++) {
+                    if (minuto + i < bacPendienteDeAbsorcion.length) {
+                        bacPendienteDeAbsorcion[minuto + i] += bacPorMinutoAbsorcion;
+                    }
+                }
+
+                // Si se acaba la bebida tomando estos múltiples tragos rápidos, pedir otra
+                if (volumenRestante <= 0 && t < tragosEnEsteMinuto - 1) {
+                    pedirNuevaBebida = true;
+                    volumenRestante = volumenBebida;
+                    tempActual = tempInicial;
+                    numeroBebida++;
                 }
             }
         }
@@ -76,8 +94,8 @@ export function calcularPlanIngesta(params, tragosFijos = []) {
             minuto,
             bac: Number(bacActual.toFixed(3)),
             temperatura: Number(tempActual.toFixed(2)),
-            tomarTrago: (minuto === 0) ? true : tomarTrago,
-            pedirNuevaBebida: (minuto === 0) ? true : pedirNuevaBebida,
+            tomarTrago: (minuto === 0 && !soloManual) ? true : tomarTrago,
+            pedirNuevaBebida: (minuto === 0 && !soloManual) ? true : pedirNuevaBebida,
             numeroBebida,
             numeroTrago,
             volumenRestante: Number(volumenRestante.toFixed(2))
