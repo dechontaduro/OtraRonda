@@ -12,8 +12,6 @@ const props = defineProps({
   parametros: { type: Object, required: true }
 });
 
-const emit = defineEmits(['toggleTrago']);
-
 const chartRef = ref(null);
 let chartInstance = null;
 
@@ -133,38 +131,6 @@ const handleResize = () => {
 // Ciclo de vida del componente
 onMounted(() => {
   chartInstance = echarts.init(chartRef.value);
-  
-  // Agregar listener para clic (tap) en el lienzo (ZRender)
-  chartInstance.getZr().on('click', function (params) {
-    const pointInPixel = [params.offsetX, params.offsetY];
-    if (chartInstance.containPixel('grid', pointInPixel)) {
-      const pointInGrid = chartInstance.convertFromPixel('grid', pointInPixel);
-      const minutoClicked = Math.round(pointInGrid[0]);
-      
-      if (minutoClicked >= 0 && props.datosSimulacion.length > 0) {
-        const margenTolerancia = props.parametros.minTiempoEntreTragos || 5;
-        // Encontrar si hay un trago cercano (usando el tiempo mínimo entre tragos como margen)
-        const tragosExistentes = props.datosSimulacion.filter(d => d.tomarTrago).map(d => d.minuto);
-        
-        let tragoCercano = undefined;
-        let minimaDistancia = Infinity;
-        
-        tragosExistentes.forEach(m => {
-          const distancia = Math.abs(m - minutoClicked);
-          if (distancia <= margenTolerancia && distancia < minimaDistancia) {
-            minimaDistancia = distancia;
-            tragoCercano = m;
-          }
-        });
-        
-        if (tragoCercano !== undefined) {
-          emit('toggleTrago', tragoCercano);
-        } else {
-          emit('toggleTrago', Math.max(0, minutoClicked));
-        }
-      }
-    }
-  });
 
   renderizarGrafico();
   window.addEventListener('resize', handleResize);

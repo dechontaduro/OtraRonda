@@ -14,9 +14,7 @@
           <GraficoIngesta 
           :datosSimulacion="datosSimulacion" 
           :parametros="parametrosActuales"
-          @toggleTrago="manejarToggleTrago"
           />
-          <p class="instruccion">💡 Toca en cualquier parte del gráfico para añadir un trago, o toca cerca de uno existente para quitarlo.</p>
         </template>
 
         <div v-else class="empty-state">
