@@ -121,7 +121,7 @@ const renderizarGrafico = () => {
     ]
   };
 
-  chartInstance.setOption(option, true);
+  chartInstance.setOption(option, { replaceMerge: ['series'] });
 };
 
 const handleResize = () => {
@@ -134,22 +134,33 @@ const handleResize = () => {
 onMounted(() => {
   chartInstance = echarts.init(chartRef.value);
   
-  // Agregar listener para doble clic en el lienzo (ZRender)
-  chartInstance.getZr().on('dblclick', function (params) {
+  // Agregar listener para clic (tap) en el lienzo (ZRender)
+  chartInstance.getZr().on('click', function (params) {
     const pointInPixel = [params.offsetX, params.offsetY];
     if (chartInstance.containPixel('grid', pointInPixel)) {
       const pointInGrid = chartInstance.convertFromPixel('grid', pointInPixel);
       const minutoClicked = Math.round(pointInGrid[0]);
       
       if (minutoClicked >= 0 && props.datosSimulacion.length > 0) {
-        // Encontrar si hay un trago cercano (margen de 2-3 minutos para facilitar el clic)
+        const margenTolerancia = props.parametros.minTiempoEntreTragos || 5;
+        // Encontrar si hay un trago cercano (usando el tiempo mínimo entre tragos como margen)
         const tragosExistentes = props.datosSimulacion.filter(d => d.tomarTrago).map(d => d.minuto);
-        const tragoCercano = tragosExistentes.find(m => Math.abs(m - minutoClicked) <= 2);
+        
+        let tragoCercano = undefined;
+        let minimaDistancia = Infinity;
+        
+        tragosExistentes.forEach(m => {
+          const distancia = Math.abs(m - minutoClicked);
+          if (distancia <= margenTolerancia && distancia < minimaDistancia) {
+            minimaDistancia = distancia;
+            tragoCercano = m;
+          }
+        });
         
         if (tragoCercano !== undefined) {
           emit('toggleTrago', tragoCercano);
         } else {
-          emit('toggleTrago', minutoClicked);
+          emit('toggleTrago', Math.max(0, minutoClicked));
         }
       }
     }

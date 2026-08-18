@@ -16,7 +16,7 @@
           :parametros="parametrosActuales"
           @toggleTrago="manejarToggleTrago"
           />
-          <p class="instruccion">💡 Haz doble clic en el gráfico para añadir un trago, o doble clic sobre uno existente para quitarlo.</p>
+          <p class="instruccion">💡 Toca en cualquier parte del gráfico para añadir un trago, o toca cerca de uno existente para quitarlo.</p>
         </template>
 
         <div v-else class="empty-state">
