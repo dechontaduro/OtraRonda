@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { ref, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import ParametrosForm from '../components/ParametrosForm.vue';
 import GraficoIngesta from '../components/GraficoIngesta.vue';
 import ResumenIngesta from '../components/ResumenIngesta.vue';
@@ -93,6 +93,45 @@ const tomarTragoManual = () => {
   tragosFijos.value = [...tragosManuales.value];
   datosSimulacion.value = calcularPlanIngesta(parametrosActuales.value, tragosFijos.value, true);
 };
+
+// Persistencia en localStorage
+onMounted(() => {
+  const savedData = localStorage.getItem('otraronda_session');
+  if (savedData) {
+    try {
+      const parsed = JSON.parse(savedData);
+      if (parsed.modoManual) {
+        modoManual.value = parsed.modoManual;
+        startTimeManual.value = parsed.startTimeManual;
+        tragosManuales.value = parsed.tragosManuales || [];
+        parametrosActuales.value = parsed.parametrosActuales || {};
+        
+        tragosFijos.value = [...tragosManuales.value];
+        datosSimulacion.value = calcularPlanIngesta(parametrosActuales.value, tragosFijos.value, true);
+
+        if (intervalId) clearInterval(intervalId);
+        intervalId = setInterval(() => {
+          minutoActualManual.value = Math.floor((Date.now() - startTimeManual.value) / 60000);
+        }, 1000);
+      }
+    } catch (e) {
+      console.error("Error restaurando sesión", e);
+    }
+  }
+});
+
+watch([modoManual, startTimeManual, tragosManuales, parametrosActuales], () => {
+  if (modoManual.value) {
+    localStorage.setItem('otraronda_session', JSON.stringify({
+      modoManual: modoManual.value,
+      startTimeManual: startTimeManual.value,
+      tragosManuales: tragosManuales.value,
+      parametrosActuales: parametrosActuales.value
+    }));
+  } else {
+    localStorage.removeItem('otraronda_session');
+  }
+}, { deep: true });
 
 onUnmounted(() => {
   if (intervalId) clearInterval(intervalId);
